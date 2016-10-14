@@ -1,0 +1,19 @@
+PATH
+  remote: ../bloc_works
+  specs:
+    bloc_works (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rack (1.6.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bloc_works!
+  rack (~> 1.6)
+
+BUNDLED WITH
+   1.11.2
