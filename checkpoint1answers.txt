@@ -1,0 +1,9 @@
+1. ActiveModel is a rails library which contains various modules which can be used to add features and functionality to Active record. It allows for adding custom suffixes and prefixes which modify methods. It also provides the ability to set callbacks on methods, use class conversion, set validations and a whole host of other added functionality. 
+
+2. ActiveRecord is a rails library which allows the use of SQL databases and provides an ORM to manage/process various commands and functionality within/onto the database. It provides the ability to map single objects to a database table, as well as providing basic CRUD methods, and the ability to construct SQL queries in Ruby.
+
+3. ActiveSupport is a ruby gem that extends many basic(core) Ruby classes to work more effectively in rails. (I’ve seen a lot of examples, but I don’t have a lot more general commentary to provide on this…) 
+
+4. ActionPack is a framework for handling and responding to web requests. It consists of several modules and provides the view and controller layers of the MVC paradigm. 
+
+5. ActionMailer allows one to send and receive emails for/from their web application via mailer classes and views. The mailer works very similarly to a controller. (They have associated views and a number of core methods.) 

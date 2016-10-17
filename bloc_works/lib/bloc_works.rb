@@ -1,8 +1,8 @@
-require "bloc_works/version"
+require_relative "bloc_works/version"
 
 module BlocWorks
   class Application
-     def call(env)
+     def self.call(env)
        [200, {'Content-Type' => 'text/html'}, ["Hello Blocheads!"]]
      end
    end
