@@ -5,7 +5,13 @@ module BlocWorks
       controller = controller.capitalize
       controller = "#{controller}Controller"
 
-      [Object.const_get(controller), action]
+      controllerClass = Object.const_get(controller)
+      controller = controllerClass.new(env)
+
+      [200, {'Content-Type' => 'text/html'}, [controller.send(action)]]
+
+      #[404, {'Content-Type' => 'text/html'}, []]
+      #[Object.const_get(controller), action]
     end
 
     def fav_icon(env)
@@ -14,4 +20,4 @@ module BlocWorks
       end
     end
   end
-end 
+end
