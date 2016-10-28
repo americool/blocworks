@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cd ../bloc_works/ && gem build bloc_works.gemspec && cd ../bloc-books/ && bundle exec rackup -p 3000

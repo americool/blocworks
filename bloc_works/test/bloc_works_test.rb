@@ -6,16 +6,12 @@ class ApplicationTest < Test::Unit::TestCase
   include Rack::Test::Methods
 
   def app
-    BlocWorks::Application
+    BlocWorks::Application.new
   end
 
   def test_call
     get "/"
 
     assert(last_response.ok?)
-    puts "---"
-    puts last_response
-    puts "---"
-    puts last_response.body
   end
 end
