@@ -8,16 +8,18 @@ class RouterTest < Test::Unit::TestCase
   include Rack::Test::Methods
 
   def app
-    BlocWorks::Application
+    BlocWorks::Application.new
   end
 
   def test_controller_and_action
     get "/home/test_welcome"
 
     assert(last_response.ok?)
-    puts "---"
-    puts last_response
-    puts "---"
-    puts last_response.body
+    assert_equal("HEY IT WORKED", last_response.body)
+  end
+
+  def test_fav_icon
+    get "/favicon.ico"
+    assert(last_response.not_found?)
   end
 end
