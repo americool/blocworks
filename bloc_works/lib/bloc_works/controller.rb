@@ -4,6 +4,11 @@ module BlocWorks
   class Controller
     def initialize(env)
       @env = env
+      @request_data = Rack::Request.new(env)
+    end
+
+    def params
+      @request_data.params
     end
 
     def render(view, locals = {})
