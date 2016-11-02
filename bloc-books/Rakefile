@@ -1,0 +1,7 @@
+task "db:create_tables" do
+  ruby "db/create_books.rb"
+end
+
+task "db:seed" do
+  ruby "db/seed.rb"
+end

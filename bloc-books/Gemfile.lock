@@ -1,7 +1,14 @@
 PATH
+  remote: ../../Bloc_Record/BlocRecord
+  specs:
+    bloc_record (0.0.0)
+      sqlite3 (~> 1.3)
+
+PATH
   remote: ../bloc_works
   specs:
     bloc_works (0.1.0)
+      bloc_record
       erubis (~> 2.7)
 
 GEM
@@ -9,14 +16,19 @@ GEM
   specs:
     erubis (2.7.0)
     rack (1.6.4)
+    rake (10.5.0)
+    sqlite3 (1.3.12)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  bloc_record!
   bloc_works!
   erubis (~> 2.7)
   rack (~> 1.6)
+  rake (~> 10.0)
+  sqlite3
 
 BUNDLED WITH
    1.11.2
