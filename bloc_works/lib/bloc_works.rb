@@ -10,7 +10,10 @@ module BlocWorks
        response = self.fav_icon(env)
 
        if response.nil?
-         response = self.controller_and_action(env)
+         rack_app = get_rack_app(env)
+        #  puts "\n\n0000000\n"
+        #  puts rack_app
+         response = rack_app.call(env)
        end
 
        response

@@ -9,11 +9,16 @@ class BooksController < BlocWorks::Controller
     render(:index)
   end
 
+  # def show
+  #   # data = Rack::Request.new(@env)
+  #   # id = data.params["id"].to_i
+  #   id = params["id"].to_i
+  #   @book = Book.find_one(id)
+  #   render(:show)
+  # end
+
   def show
-    # data = Rack::Request.new(@env)
-    # id = data.params["id"].to_i
-    id = params["id"].to_i
-    @book = Book.find_one(id)
-    render(:show)
-  end
+     book = Book.find(params['id'].to_i)
+     render :show, book: book
+   end
 end
