@@ -1,5 +1,7 @@
 module BlocWorks
   class Application
+    attr_reader :router
+
     def controller_and_action(env)
       _, controller, action, _ = env["PATH_INFO"].split("/", 4)
       controller = controller.capitalize
@@ -43,22 +45,13 @@ module BlocWorks
   end
 
   class Router
+    attr_reader :rules
+
     def initialize
       @rules = []
     end
 
-    def map(url, *args)
-      options = {}
-      options = args.pop if args[-1].is_a?(Hash)
-      options[:default] ||= {}
-
-      destination = nil
-      destination = args.pop if args.size > 0
-      raise "Too many args!" if args.size > 0
-
-      parts = url.split("/")
-      parts.reject! {|part| part.empty?}
-
+    def url_parser(parts)
       vars, regex_parts = [], []
 
       parts.each do |part|
@@ -73,11 +66,38 @@ module BlocWorks
           regex_parts << part
         end
       end
-
       regex = regex_parts.join("/")
-      @rules.push({ regex: Regexp.new("^/#{regex}$"),
-                    vars: vars, destination: destination,
-                    options: options })
+      maping_tool = {regex: Regexp.new("^/#{regex}$"), vars: vars}
+    end
+
+
+    def map(url, *args)
+      raise "Too many args!" if args.size > 2
+
+      options = {}
+      options = args.pop if args[-1].is_a?(Hash)
+      options[:default] ||= {}
+
+      destination = nil
+      destination = args.pop if args.size > 0
+
+      parts = url.split("/")
+      parts.reject! {|part| part.empty?}
+
+      maping_tool = url_parser(parts)
+
+      maping_tool.merge!({destination: destination, options: options})
+      @rules.push(maping_tool)
+    end
+
+    def get_rule_params(rule, rule_match)
+      options = rule[:options]
+      params = options[:default].dup
+
+      rule[:vars].each_with_index do |var, index|
+        params[var] = rule_match.captures[index]
+      end
+      params
     end
 
     def look_up_url(url)
@@ -85,20 +105,16 @@ module BlocWorks
         rule_match = rule[:regex].match(url)
 
         if rule_match
-          options = rule[:options]
-          params = options[:default].dup
+          params = get_rule_params(rule, rule_match)
+          destination = rule[:destination]
 
-          rule[:vars].each_with_index do |var, index|
-            params[var] = rule_match.captures[index]
-          end
-
-          if rule[:destination]
-            return get_destination(rule[:destination], params)
-          else
+          if destination.nil?
             controller = params["controller"]
             action = params["action"]
-            return get_destination("#{controller}##{action}", params)
+            destination = "#{controller}##{action}"
           end
+
+          return get_destination(destination, params)
         end
       end
     end
@@ -106,8 +122,7 @@ module BlocWorks
     def get_destination(destination, routing_params = {})
       if destination.respond_to?(:call)
         return destination
-      end
-      if destination =~ /^([^#]+)#([^#]+)$/
+      elsif destination =~ /^([^#]+)#([^#]+)$/
         name = $1.capitalize
         controllerClass = Object.const_get("#{name}Controller")
         return controllerClass.action($2, routing_params)

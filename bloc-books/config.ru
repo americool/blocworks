@@ -9,6 +9,7 @@ app.route do
   map ":controller/:id/:action"
   map ":controller/:id", default: {"action" => "show"}
   map ":controller", default: {"action" => "index"}
+
 end
 
 run(app)

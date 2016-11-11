@@ -40,6 +40,29 @@ module BlocWorks
       response(create_response_array(*args))
     end
 
+    def redirect(arg)
+      if arg.is_a?(String)
+        headers = Hash.new
+
+        headers['Location'] = arg
+
+        response("", 302, headers)
+      else
+        controllerName = arg.delete('controller') || params["controller"]
+        if controllerName.nil?
+          puts "No controller"
+        else
+          puts "This thing:" + controllerName.capitalize
+        end
+        controllerName = controllerName.capitalize
+        actionName = arg.delete('action') || params["action"]
+
+        controllerClass = Object.const_get("#{controllerName}Controller")
+        proc_response = controllerClass.action(actionName, arg)
+        proc_response.call(@env)
+      end
+    end
+
     def get_response
       @response
     end
