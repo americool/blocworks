@@ -40,7 +40,8 @@ module BlocWorks
       if link.length > 1 && link[-1] == "/"
         link.chop!
       end
-      @router.look_up_url(link)
+      method = env["REQUEST_METHOD"]
+      @router.look_up_url(method, link)
     end
   end
 
@@ -70,6 +71,15 @@ module BlocWorks
       maping_tool = {regex: Regexp.new("^/#{regex}$"), vars: vars}
     end
 
+    def resources(resource)
+      map "#{resource}", default: {"controller" => resource, "action" => "index"}, method: "GET"
+      map "#{resource}/new", default: {"controller" => resource, "action" => "new"}, method: "GET"
+      map "#{resource}", default: {"controller" => resource, "action" => "create"}, method: "POST"
+      map "#{resource}/:id", default: {"controller" => resource, "action" => "show"}, method: "GET"
+      map "#{resource}/:id/edit", default: {"controller" => resource, "action" => "edit"}, method: "GET"
+      map "#{resource}/:id", default: {"controller" => resource, "action" => "update"}, method: "PUT"
+      map "#{resource}/:id", default: {"controller" => resource, "action" => "destroy"}, method: "DELETE"
+    end
 
     def map(url, *args)
       raise "Too many args!" if args.size > 2
@@ -100,11 +110,12 @@ module BlocWorks
       params
     end
 
-    def look_up_url(url)
+    def look_up_url(method, url)
       @rules.each do |rule|
         rule_match = rule[:regex].match(url)
+        method_match = rule[:options][:method] == method
 
-        if rule_match
+        if rule_match && method_match
           params = get_rule_params(rule, rule_match)
           destination = rule[:destination]
 

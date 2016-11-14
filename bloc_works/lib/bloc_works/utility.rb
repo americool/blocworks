@@ -6,4 +6,9 @@ module BlocWorks
     string.tr!("-", "_")
     string.downcase
    end
- end 
+
+   def self.convert_keys(options)
+      options.keys.each {|k| options[k.to_s] = options.delete(k) if k.kind_of?(Symbol)}
+      options
+  end
+ end

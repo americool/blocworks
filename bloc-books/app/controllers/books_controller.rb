@@ -19,15 +19,15 @@ class BooksController < BlocWorks::Controller
 
   def show
     id = params['id'].to_i
-    # if id < 1 || id.nil?
-    #   redirect action: 'error', message: 'Invalid ID'
-    # end
+    if id < 1 || id.nil?
+      redirect action: 'error', message: 'Invalid ID'
+    end
      book = Book.find(id)
-     render :show, book: book
+     render book: book
   end
 
   def display
-    redirect  action: show, id: params['id']
+    redirect action: :show, id: params['id']
   end
 
   def amazon

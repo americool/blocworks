@@ -9,7 +9,7 @@ module BlocWorks
     end
 
     def dispatch(action, routing_params = {})
-      @routing_params = routing_params
+      @routing_params = BlocWorks::convert_keys(routing_params)
       text = self.send(action)
       if has_response?
         rack_response = get_response
@@ -20,11 +20,11 @@ module BlocWorks
     end
 
     def self.action(action, response = {})
-      proc { |env| self.new(env).dispatch(action, response) }
+      proc { |env| self.new(env).dispatch(action, BlocWorks::convert_keys(response)) }
     end
 
     def request
-      @request ||=Rack::Request.new(@env)
+      @request ||= Rack::Request.new(@env)
     end
 
     def params
@@ -33,7 +33,7 @@ module BlocWorks
 
     def response(text, status = 200, headers = {})
       raise "Cannot respond multiple times" unless @response.nil?
-      @response = Rack::Response.new([text].flatten, status, headers)
+      @response = Rack::Response.new([text].flatten, status, BlocWorks::convert_keys(headers))
     end
 
     def render(*args)
@@ -48,18 +48,20 @@ module BlocWorks
 
         response("", 302, headers)
       else
-        controllerName = arg.delete('controller') || params["controller"]
-        if controllerName.nil?
-          puts "No controller"
-        else
-          puts "This thing:" + controllerName.capitalize
-        end
-        controllerName = controllerName.capitalize
-        actionName = arg.delete('action') || params["action"]
+        arg = BlocWorks::convert_keys(arg)
+        controller_name = arg.delete('controller') || params["controller"]
+        action_name = arg.delete('action') || params["action"]
 
-        controllerClass = Object.const_get("#{controllerName}Controller")
-        proc_response = controllerClass.action(actionName, arg)
-        proc_response.call(@env)
+        action_params = params.merge(arg);
+        action_params['controller'] = controller_name
+        action_params['action'] = action_name
+
+        controller_name = controller_name.capitalize
+
+        controller_class = Object.const_get("#{controller_name}Controller")
+        proc_response = controller_class.action(action_name, action_params).call(@env)
+
+        response(proc_response[2], proc_response[0], proc_response[1])
       end
     end
 
@@ -71,15 +73,23 @@ module BlocWorks
       !@response.nil?
     end
 
-    def create_response_array(view, locals = {})
+    def create_response_array(*args)
+      if args[0].is_a?(Hash)
+        view = params["action"]
+        locals = args[0] || {}
+      else
+        view = args[0]
+        locals = args[1] || {}
+      end
+
       filename = File.join("app", "views", controller_dir, "#{view}.html.erb")
       template = File.read(filename)
+      locals = BlocWorks::convert_keys(locals)
 
       eruby = Erubis::Eruby.new(template)
 
       self.instance_variables.each do |name|
         key = name.to_s[1..-1]
-        # puts key
         value = instance_variable_get(name.to_s)
 
         locals[key] = value
